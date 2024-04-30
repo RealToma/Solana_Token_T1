@@ -4,34 +4,38 @@ import {
   createSignerFromKeypair,
   signerIdentity,
   publicKey,
-} from '@metaplex-foundation/umi';
+} from "@metaplex-foundation/umi";
 import {
   TokenStandard,
   createAndMint,
   createMetadataAccountV3,
-  createV1
-} from '@metaplex-foundation/mpl-token-metadata';
-import { createUmi } from '@metaplex-foundation/umi-bundle-defaults';
-import { mplCandyMachine } from '@metaplex-foundation/mpl-candy-machine';
+  createV1,
+} from "@metaplex-foundation/mpl-token-metadata";
+import { createUmi } from "@metaplex-foundation/umi-bundle-defaults";
+import { mplCandyMachine } from "@metaplex-foundation/mpl-candy-machine";
 
-import * as dotenv from 'dotenv';
+import * as dotenv from "dotenv";
 dotenv.config();
 
-import { loadSecretKey, saveSecretKey } from './utils';
-import token_metadata from './token.json';
-import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
+import { loadSecretKey, saveSecretKey } from "./utils";
+import token_metadata from "./token.json";
+import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 
 void (async function () {
-  const signer = await loadSecretKey('signer.key');
-  const mintKeypair = await loadSecretKey('mint.key');
+  const signer = await loadSecretKey("signer.key");
+  const mintKeypair = await loadSecretKey("mint.key");
   if (!signer || !mintKeypair) {
     process.exit(1);
   }
-  const umi = createUmi(process.env.NODE_ENV == 'production' ? 'https://api.mainnet-beta.solana.com' : 'https://api.devnet.solana.com');
+  const umi = createUmi(
+    process.env.NODE_ENV == "production"
+      ? "https://api.mainnet-beta.solana.com"
+      : "https://api.devnet.solana.com"
+  );
   const userWallet = umi.eddsa.createKeypairFromSecretKey(signer.secretKey);
   const userWalletSigner = createSignerFromKeypair(umi, userWallet);
 
-  umi.programs.bind('splToken', 'splToken2022');
+  umi.programs.bind("splToken", "splToken2022");
   umi.use(signerIdentity(userWalletSigner));
   umi.use(mplCandyMachine());
 
@@ -40,7 +44,7 @@ void (async function () {
     name: token_metadata.name,
     symbol: token_metadata.symbol,
     decimals: 9,
-    uri: "https://arweave.net/4ytkPobKVaNWd6v609P3DucUYE5UkOjf5fUabGCUuKg",
+    uri: "https://ipfs.io/ipfs/QmdtHcZPATy45mxPwYAcbi3QspaF93J5QprGmnDAf9fH4W",
     sellerFeeBasisPoints: percentAmount(0),
     creators: null,
     isMutable: true,
@@ -55,9 +59,8 @@ void (async function () {
   })
     .sendAndConfirm(umi)
     .then(() => {
-      console.log('Successfully set metadata.');
+      console.log("Successfully set metadata.");
     });
-
 
   /*
   const mint = generateSigner(umi);
@@ -78,5 +81,4 @@ void (async function () {
     .then(() => {
       console.log("Successfully deployed");
     });*/
-
 })();
